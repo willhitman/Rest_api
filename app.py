@@ -1,8 +1,8 @@
 from flask import Flask,request, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy #install using 'pip insatall flask_sqlalchemy' command
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
-import jwt
+import jwt   #need to install via the 'pip install jwt' command on terminal
 import datetime
 from functools import wraps
 app = Flask(__name__)
@@ -49,9 +49,6 @@ def token_required(f):
 @app.route('/user', methods = ['GET'])#GETTING ALL THE USERS
 @token_required
 def get_all_users(current_user):
-    if not current_user.admin:
-        return jsonify({"message": "Not authorized"})
-
     users = User.query.all()
     result = []
     for user in users:
@@ -66,8 +63,8 @@ def get_all_users(current_user):
 @app.route('/user/<user_id>', methods = ['GET'])#GETTING A SINGLE USER 
 @token_required
 def get_single_user(current_user, user_id):
-    if not current_user.admin:
-        return jsonify({"message": "Not authorized"})
+    #if not current_user.admin:
+        #return jsonify({"message": "Not authorized"})
         
 
     user = User.query.filter_by(user_id = user_id).first()#only get the first result because the user_id is unique
@@ -106,8 +103,8 @@ def update_user(current_user, user_id):
 @app.route('/user', methods = ['POST'])#ADDING A NEW USER HERE
 @token_required
 def add_new_user(current_user):
-    if not current_user.admin:
-        return jsonify({"message": "Not authorized"})
+    #if not current_user.admin:
+        #return jsonify({"message": "Not authorized"})
         
     data = request.get_json()
     
@@ -121,22 +118,22 @@ def add_new_user(current_user):
 
 #this route is for everyone
 
-@app.route('/login')
+@app.route('/login',methods = ['POST']) # FOR LOGGING IN
 def login():
     auth = request.authorization
 
     if not auth or not auth.username or not auth.password:
-        return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm = "Login required"'})
+        return make_response('ENTER USERNAME AND PASSWORD TO CONTINUE', 401, {'WWW-Authenticate' : 'Basic realm = "Login required"'})
     user = User.query.filter_by(user_name = auth.username).first()
 
     if not user:
-        return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm = "Login required"'})
+        return make_response('USERNAME OR PASSWORD INCORRECT1', 401, {'WWW-Authenticate' : 'Basic realm = "Login required"'})
         
     if check_password_hash(user.password, auth.password):
         token = jwt.encode({'user_id' : user.user_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
         return jsonify({'token' : token.decode('UTF-8')})
 
-    return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm = "Login required"'})
+    return make_response('USERNAME OR PASSWORD INCORRECT2', 401, {'WWW-Authenticate' : 'Basic realm = "Login required"'})
 
 #Start of end user routes
 @app.route('/post', methods = ['POST','GET'])
