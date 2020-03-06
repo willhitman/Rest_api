@@ -95,14 +95,14 @@ def update_user(current_user, user_id):
     if not user.admin == True:
         user.admin = True
     else:
-        user.admin = False
+        user.admin = False  
         db.session.commit()
 
     return({"message" : "User updated"})
 
 @app.route('/user', methods = ['POST'])#ADDING A NEW USER HERE
-@token_required
-def add_new_user(current_user):
+#@token_required
+def add_new_user():
     #if not current_user.admin:
         #return jsonify({"message": "Not authorized"})
         
