@@ -8,7 +8,8 @@ from functools import wraps
 
 app = Flask(__name__)
  
-app.config.from_pyfile('configs.py')
+app.config["SECRET_KEY"]= 'itsprollyforthebest'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///my.db'
 
 db = SQLAlchemy(app)
 
@@ -69,6 +70,7 @@ def add_new_user():
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'message' : 'New user added successfully'})
+
 #.................... .......................... ..................... ..................... ................... ........................... ........................
 from addmin_routes import *
 from user_routes import *

@@ -1,6 +1,7 @@
 
 from app import app
-from model import *
+from app import token_required
+
 
 @app.route('/post', methods = ['POST','GET'])
 @token_required

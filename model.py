@@ -4,8 +4,7 @@ class User(db.Model):
     user_id = db.Column(db.String(80), unique = True)
     user_name = db.Column(db.String(100))
     password = db.Column(db.String(100))
-    admin = db.Column(db.Boolean)
-
+   
 
 class Posts(db.Model):
     id = db.Column(db.Integer, primary_key = True)
