@@ -1,19 +1,21 @@
 
-from app import app
-from app import token_required
+from app import *
+from model import *
+
 
 
 @app.route('/post', methods = ['POST','GET'])
 @token_required
 def post_something(current_user):
     if request.method == 'POST':
-        post_data = request.get_json()
-        
-        new_post =Posts(user_id = current_user.user_id,body = post_data['text'],seen = False,count= "0")
-        db.session.add(new_post)
-        db.session.commit()
-        return jsonify({"message" : "Post successfull"})
-    
+
+        if request.get_json():
+            post_data = request.get_json()
+            
+            new_post =Posts(user_id = current_user.user_id,body = post_data['text'],seen = False,count= "0")
+            db.session.add(new_post)
+            db.session.commit()
+            return jsonify({"message" : "Post successfull"})
     #This is for getting all posts
     elif request.method == 'GET':
         posts = Posts.query.all()
@@ -27,7 +29,7 @@ def post_something(current_user):
             all_posts['seen'] = post.seen
             all_posts['likes']=post.count
             collected_posts.append(all_posts)
-    
+
         return jsonify({"message" : collected_posts})
 
 @app.route("/post/<post_id>", methods = ['PUT','GET'])
@@ -58,3 +60,22 @@ def get_by_post_id(current_user,post_id):
 
 
         return jsonify({"message": "Post liked"})
+
+#this routes are for images only.............
+@app.route('/images', methods = ['POST', 'GET'])
+@token_required
+def upload_or_download(current_user):
+    if request.method == 'POST':
+        if request.get_json():
+            temp = request.get_json()
+            image = User_image(image=temp['image'])
+            db.session.add(image)
+            db.session.commit()
+            return jsonify({"messge":"success"})
+
+    if request.method =='PUT':
+        if request.get_json():
+            #need to check if user already exists before adding image
+            return("...")
+    
+

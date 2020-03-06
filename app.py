@@ -4,6 +4,7 @@ from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt   #need to install via the 'pip install jwt' command on terminal
 import datetime
+import json
 from functools import wraps
 
 app = Flask(__name__)
@@ -57,19 +58,17 @@ def login():
 #this route is for creating a new user
 
 #.................... ................. ...................... .................. .................. ........................ ................................ ...................................... .................
-@app.route('/user', methods = ['POST'])#ADDING A NEW USER HERE
-#@token_required
-def add_new_user():
-    #if not current_user.admin:
-        #return jsonify({"message": "Not authorized"})
-        
-    data = request.get_json()
-    
-    hashed_password = generate_password_hash(data['password'], method='sha256')
-    new_user = User(user_id = str(uuid4()), user_name = data ['user_name'], password = hashed_password, admin = False)
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({'message' : 'New user added successfully'})
+@app.route('/user', methods = ['POST'])
+#no need for authentication.....will ad email or phone verification later on
+def add_new_user():   
+    if request.get_json():
+        data = request.get_json()
+        hashed_password = generate_password_hash(data['password'], method='sha256')
+        new_user = User(user_id = str(uuid4()), user_name = data ['user_name'], password = hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        return jsonify({'message' : 'New user added successfully'})
 
 #.................... .......................... ..................... ..................... ................... ........................... ........................
 from addmin_routes import *
