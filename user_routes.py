@@ -3,22 +3,22 @@ from app import *
 from model import *
 
 
-
+       
 @app.route('/post', methods = ['POST','GET'])
 @token_required
 def post_something(current_user):
     if request.method == 'POST':
 
-        if request.get_json():
+        if request.get_json():        
             post_data = request.get_json()
             
-            new_post =Posts(user_id = current_user.user_id,body = post_data['text'],seen = False,count= "0")
+            new_post =Posts(user_id = current_user.user_id,body = post_data['text'],seen = "0",count= "0")
             db.session.add(new_post)
             db.session.commit()
             return jsonify({"message" : "Post successfull"})
     #This is for getting all posts
-    elif request.method == 'GET':
-        posts = Posts.query.all()
+    elif request.method == 'GET':        
+        posts = Posts.query.all()                
         
         collected_posts = []
         for post in posts:
@@ -61,7 +61,7 @@ def get_by_post_id(current_user,post_id):
 
         return jsonify({"message": "Post liked"})
 
-#this routes are for images only.............
+#this routes are for user_profile_images only.............the photo will be received as byte code from front end
 @app.route('/images', methods = ['POST', 'GET'])
 @token_required
 def upload_or_download(current_user):
@@ -71,11 +71,18 @@ def upload_or_download(current_user):
             image = User_image(image=temp['image'])
             db.session.add(image)
             db.session.commit()
-            return jsonify({"messge":"success"})
+            return jsonify({"message":"success"})
 
     if request.method =='PUT':
         if request.get_json():
-            #need to check if user already exists before adding image
-            return("...")
+            image = User_image.query.filter_by(current_user['user_id']).first
+            user_dp['image'] = image.image
+            return jsonify({"message":image})
+    
+    return jsonify({"message":"error"})
+
+
+    
+           
     
 

@@ -1,11 +1,12 @@
-from flask import Flask,request, jsonify, make_response
+from flask import Flask,request, jsonify, make_response,json
 from flask_sqlalchemy import SQLAlchemy #install using 'pip insatall flask_sqlalchemy' command
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt   #need to install via the 'pip install jwt' command on terminal
 import datetime
 import json
-from functools import wraps
+from functools        import wraps
+import sys
 
 app = Flask(__name__)
  
@@ -19,7 +20,7 @@ db = SQLAlchemy(app)
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = None
+        token =         None
         if 'x.access-token' in request.headers:
             token = request.headers['x.access-token']
 
@@ -47,33 +48,35 @@ def login():
 
     if not user:
         return make_response('USERNAME OR PASSWORD INCORRECT1', 401, {'WWW-Authenticate' : 'Basic realm = "Login required"'})
-        
+                
     if check_password_hash(user.password, auth.password):
         token = jwt.encode({'user_id' : user.user_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+
         return jsonify({'token' : token.decode('UTF-8')})
 
-    return make_response('USERNAME OR PASSWORD INCORRECT2', 401, {'WWW-Authenticate' : 'Basic realm = "Login required"'})
-
+    return make_response                ('USERNAME OR PASSWORD INCORRECT2', 401, {'WWW-Authenticate' : 'Basic realm = "Login required"'})
+        
 
 #this route is for creating a new user
 
 #.................... ................. ...................... .................. .................. ........................ ................................ ...................................... .................
 @app.route('/user', methods = ['POST'])
 #no need for authentication.....will ad email or phone verification later on
-def add_new_user():   
-    if request.get_json():
-        data = request.get_json()
-        hashed_password = generate_password_hash(data['password'], method='sha256')
-        new_user = User(user_id = str(uuid4()), user_name = data ['user_name'], password = hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-
-        return jsonify({'message' : 'New user added successfully'})
-
-#.................... .......................... ..................... ..................... ................... ........................... ........................
+def add_new_user():           
+    
+    data = request.get_json()
+    
+    print(data, file=sys.stderr)
+    hashed_password = generate_password_hash(data['password'], method='sha256')
+    new_user = User(user_id = str(uuid4()), user_name = data['user_name'], password = hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
+    
+    return jsonify({'message' : 'New user added successfully'})
+#..................        .. .......................... ..................... ..................... ................... ........................... ........................
 from addmin_routes import *
 from user_routes import *
 from bus_routes import *
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug = True)        
